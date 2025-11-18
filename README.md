@@ -15,8 +15,26 @@ Install example:
 
 ## Build C++ Extension
 - From repo root:
-  - `python setup.py build_ext --inplace`
+  - `python cpp/setup.py build_ext --inplace`
 - Produces `rl_snake/snake_env_cpp*.so`. Use `from rl_snake import SnakeEnv` in Python.
+
+### Cross‑platform build notes
+- Windows
+  - Install Visual Studio Build Tools (C++ workload) so `cl.exe` is available.
+  - Use the matching Python version: `python3 cpp/setup.py build_ext --inplace`.
+  - The output file is `.pyd` under `rl_snake/`.
+- Linux x86_64
+  - Ensure toolchain: `sudo apt-get install -y build-essential python3-dev`.
+  - Build with `python3 setup.py build_ext --inplace`.
+  - Output `.so` under `rl_snake/`.
+- Linux ARM (e.g., Raspberry Pi)
+  - Install toolchain and headers: `sudo apt-get install -y build-essential python3-dev`.
+  - Build with `python3 setup.py build_ext --inplace`.
+  - Output `.so` under `rl_snake/`.
+- Python version changes (3.8/3.10/3.11)
+  - Rebuild is required whenever Python ABI changes.
+- Alternative: editable install builds automatically
+  - `pip install -e .`
 
 ## Project Structure
 - `rl_snake/` environment package
@@ -59,6 +77,22 @@ Common args:
   - `python dqn_train.py --mode train --save ./models/dqn_snake_torch.pt --load ./models/dqn_snake_torch.pt --resume 1`
 - Note: if loading fails or shape mismatch occurs, it logs and continues; save dirs are auto-created.
 
+### Quick start tutorial
+- 1) Install dependencies
+  - `python -m pip install -U numpy torch matplotlib pygame pybind11`
+- 2) Build the C++ extension
+  - `python setup.py build_ext --inplace` (or `pip install -e .`)
+- 3) Verify environment
+  - `python -c "from rl_snake import SnakeEnv; print(SnakeEnv(size=10).reset().shape)"`
+- 4) Train one algorithm (example PPO)
+  - `python ppo_train.py --mode train --episodes 20000 --size 40 --save ./models/ppo_snake_torch.pt`
+- 5) Evaluate with rendering
+  - `python ppo_train.py --mode eval --eval 10 --size 40 --render 1 --save ./models/ppo_snake_torch.pt`
+- 6) Manual play
+  - `python scripts/manual_play.py --size 10 --fps 10 --scale 30`
+- 7) Resume training from a checkpoint
+  - `python ppo_train.py --mode train --save ./models/ppo_snake_torch.pt --load ./models/ppo_snake_torch.pt --resume 1`
+
 ### Evaluate & Visualize
 - PPO:
   - `python ppo_train.py --mode eval --eval 10 --size 40 --render 1 --save ./models/ppo_snake_torch.pt`
@@ -91,5 +125,7 @@ Common args:
 - `snake_env_cpp not found`: build first `python setup.py build_ext --inplace`; or `pip install -e .`
 - Extension import path: prefer `from rl_snake import SnakeEnv`; wrapper includes a fallback import
 - Load errors: ensure checkpoint matches current hyperparameters; otherwise retrain
+ - Windows build errors: install MSVC toolchain (Build Tools) and ensure the Python version matches the installed headers.
+ - ARM build performance: reduce `--size` during training and evaluation to keep FPS and steps reasonable on low-power devices.
 
 For Chinese documentation, see `README.zh.md`.
