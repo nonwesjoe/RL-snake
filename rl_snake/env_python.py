@@ -30,9 +30,11 @@ class SnakeEnv:
             self.score += 1
             self._place_food()
             reward = 1.25
-            if self.score>=30:
+            if self.score>=70:
+                reward=reward+1.75
+            elif self.score>=50:
                 reward=reward+1.25
-            elif self.score>=20:
+            elif self.score>=30:
                 reward=reward+1.0
             self.no_food_steps = 0
         else:
@@ -42,10 +44,7 @@ class SnakeEnv:
         turn_pen = -0.05 if action != 1 else 0.0
         cur_dist = self._manhattan(self.head, self.food)
         shaping = 0.065 * (self.last_dist - cur_dist)
-        # print('last',self.last_dist)
-        # print('cur',cur_dist)
-        # print('sha',shaping)
-        # print('====')
+
         self.last_dist = cur_dist
         reward = reward + shaping + turn_pen 
         starve_limit =self.size * self.size // 6

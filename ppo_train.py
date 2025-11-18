@@ -3,8 +3,8 @@ import os
 import time
 import numpy as np
 import torch
-from env import SnakeEnv
-from ppo_agent import PPOAgent
+from rl_snake import SnakeEnv
+from agents import PPOAgent
 import matplotlib.pyplot as plt
 
 def train(episodes, size, seed, save_path, max_steps, update_freq=2048, 
@@ -134,8 +134,8 @@ def train(episodes, size, seed, save_path, max_steps, update_freq=2048,
         plt.xlabel("Episode")
         plt.ylabel("Score")
         plt.grid(True)
-        plt.savefig("ppo_scores.png")
-        print("Score plot saved to ppo_scores.png")
+        plt.savefig("imgs/ppo_scores.png")
+        print("Score plot saved to imgs/ppo_scores.png")
 
 def evaluate(episodes, size, seed, model_path, max_steps, render=False):
     env = SnakeEnv(size=size, seed=seed)
@@ -166,23 +166,27 @@ def evaluate(episodes, size, seed, model_path, max_steps, render=False):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--episodes", type=int, default=20000)
-    p.add_argument("--size", type=int, default=30)
+    p.add_argument("--size", type=int, default=40)
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--save", type=str, default="ppo_snake_torch.pt")
+    p.add_argument("--save", type=str, default="./models/ppo_snake_torch.pt")
     p.add_argument("--max_steps", type=int, default=5000)
     p.add_argument("--update_freq", type=int, default=2048)  # 收集多少步后更新
     p.add_argument("--epochs", type=int, default=4)  # 每次更新的轮数
     p.add_argument("--batch_size", type=int, default=128)  # mini-batch大小
-    p.add_argument("--load", type=str, default="")
-    p.add_argument("--resume", type=int, default=0)
-    p.add_argument("--eval", type=int, default=3)
-    p.add_argument("--render", type=int, default=0)
+    p.add_argument("--load", type=str, default="./models/ppo_snake_torch.pt")
+    p.add_argument("--resume", type=int, default=1)
+    p.add_argument("--eval", type=int, default=10)
+    p.add_argument("--render", type=int, default=1)
+    p.add_argument("--mode", type=str, default='train')
+
     args = p.parse_args()
     start = time.time()
-    train(args.episodes, args.size, args.seed, args.save, args.max_steps, 
-          args.update_freq, args.epochs, args.batch_size, 
-          load_path=(args.load if args.load else None), resume=bool(args.resume))
-    evaluate(args.eval, args.size, args.seed, args.save, args.max_steps, render=bool(args.render))
+    if args.mode == 'train':
+        train(args.episodes, args.size, args.seed, args.save, args.max_steps, 
+              args.update_freq, args.epochs, args.batch_size, 
+              load_path=(args.load if args.load else None), resume=bool(args.resume))
+    elif args.mode == 'eval':
+        evaluate(args.eval, args.size, args.seed, args.save, args.max_steps, render=bool(args.render))
     print(f"device={'cuda' if torch.cuda.is_available() else 'cpu'}")
     print(f"done_in={time.time()-start:.2f}s")
 
