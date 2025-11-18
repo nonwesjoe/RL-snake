@@ -68,6 +68,9 @@ Common args:
   - `python dqn_train.py --mode eval --eval 3 --size 30 --render 1 --save ./models/dqn_snake_torch.pt`
 - Curves saved under `imgs/`: `imgs/ppo_scores.png`, `imgs/reinforce_scores.png`, `imgs/dqn_scores.png`
 
+## Demo Images
+- Demo: ![Game Demo](imgs/game.png)
+
 ### Manual Play
 - `python scripts/manual_play.py --size 10 --fps 10 --scale 30`
 - Controls: arrow keys; `Esc` to quit
